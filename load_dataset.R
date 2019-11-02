@@ -9,6 +9,9 @@ if(!file.exists(filename)){
   unzip(zipFile)
 }
 
+## Fix timezone
+Sys.setlocale("LC_TIME","English")
+
 ## Process dataset
 data <- read.table(filename, header = TRUE, sep = ";", colClasses = c("character", "character", rep("numeric",7)), na = "?")
 dim(data) # Check if dataset has 2,075,259 rows and 9 columns

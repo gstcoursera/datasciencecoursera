@@ -9,7 +9,7 @@ subset <- Date == "1/2/2007" | Date == "2/2/2007"
 
 ## Create the new dataset with only these dates
 newdata <- data[subset, ]
-attach(newdata)
+attach(newdata) # ignore warnings
 dim(newdata) # values should be 2880 rows and 9 columns
 
 ## Add a new column to convert the Date and Time variables to Date/Time classes
@@ -17,4 +17,4 @@ x <- paste(Date, Time)
 newdata$DateTime <- strptime(x, "%d/%m/%Y %H:%M:%S")
 rownames(newdata) <- 1:nrow(newdata)
 dim(newdata) # values should be 2880 rows and 10 columns
-attach(newdata)
+attach(newdata) # ignore warnings

@@ -1,5 +1,15 @@
 ## Load dataset
 filename <- "./household_power_consumption.txt"
+
+## Download dataset if not exist
+if(!file.exists(filename)){
+  fileUrl <- "https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2Fhousehold_power_consumption.zip"
+  zipFile <- "./household_power_consumption.zip"
+  download.file(fileUrl,destfile = zipFile)
+  unzip(zipFile)
+}
+
+## Process dataset
 data <- read.table(filename, header = TRUE, sep = ";", colClasses = c("character", "character", rep("numeric",7)), na = "?")
 dim(data) # Check if dataset has 2,075,259 rows and 9 columns
 

@@ -1,0 +1,102 @@
+---
+title: Impact of Weather Events on Public Health and Economy in the US
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1. Synopsis
+
+In this report, we will analyze the impact of different weather events on public health and economy in the US. Our source data are from the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database and cover the period 1950-2011.
+
+In this analysis, we will investigate and decide which types of weather events that had the most effect on health and economy.
+
+## 2. Data Processing
+
+### 2.1 Get the data
+
+```{r}
+filename <- "./repdata_data_StormData.csv"
+if(!file.exists(filename)){
+  fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+  zipFile <- "./repdata_data_StormData.csv.bz2"
+  download.file(fileUrl,destfile = zipFile, method = "curl")
+  unzip(zipFile)
+}
+```
+
+```{r message=FALSE, warning=FALSE}
+#Load required libraries
+require(dplyr)
+```
+
+### 2.2 Load the csv file
+
+```{r}
+data <- read.csv(filename)
+
+# Examine the columns
+colnames(data)
+```
+
+### 2.3 Transform the data
+
+```{r message=FALSE, warning=FALSE}
+
+# Keep only columns needed for the analysis
+data <- select(data, EVTYPE, FATALITIES, INJURIES, PROPDMG, PROPDMGEXP, CROPDMG, CROPDMGEXP)
+
+# check new data
+str(data)
+
+fixValues <- function(x, y) { 
+    if (x > 0) {
+      data[, x] <- as.character(data[, toupper(x)])
+      data[data[, x] == "B", x] <- "9"
+      data[data[, x] == "M", x] <- "6"
+      data[data[, x] == "K", x] <- "3"
+      data[data[, x] == "H", x] <- "2"
+      data[data[, x] == "", x] <- "0"
+      data[, x] <- 10^(as.numeric(data[, x]))
+      data[is.na(data[, x]), x] <- 0
+    }
+    if (y > 0) {
+      data[, y] <- as.character(data[, toupper(y)])
+      data[data[, y] == "B", y] <- "9"
+      data[data[, y] == "M", y] <- "6"
+      data[data[, y] == "K", y] <- "3"
+      data[data[, y] == "H", y] <- "2"
+      data[data[, y] == "", y] <- "0"
+      data[, y] <- 10^(as.numeric(data[, y]))
+      data[is.na(data[, y]), y] <- 0
+    }
+    return(data)
+}
+
+
+data <- fixValues("PROPDMGEXP", "CROPDMGEXP")
+
+getReport <- function(i, j) {
+    repData <- aggregate(data[, which(colnames(data) == i)], by = list(EVTYPE = data$EVTYPE), 
+                         FUN = sum)
+    colnames(repData) <- c("EVTYPE", i)
+    repData <- arrange(repData, desc(repData[, i]))
+    repData <- head(repData, n = j)
+    return(repData)
+}
+
+Fatalities <- getReport("FATALITIES", 15); print(Fatalities)
+Injuries <- getReport("INJURIES", 15); print(Injuries)
+
+Fatalities %>% inner_join(Injuries, by = "EVTYPE")
+
+```
+
+
+
+
+
+
+

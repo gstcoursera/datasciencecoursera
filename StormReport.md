@@ -5,9 +5,7 @@ output:
     keep_md: yes
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 ## 1. Synopsis
 
@@ -20,7 +18,8 @@ In this section, we will load and tranform the data for our needs. We will also 
 
 ### 2.1 Get the data
 
-```{r}
+
+```r
 filename <- "./repdata_data_StormData.csv"
 if(!file.exists(filename)){
   fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
@@ -30,30 +29,56 @@ if(!file.exists(filename)){
 }
 ```
 
-```{r message=FALSE, warning=FALSE}
+
+```r
 # Load required library
 require(dplyr)
 ```
 
 ### 2.2 Load the csv file
 
-```{r}
+
+```r
 data <- read.csv(filename)
 
 # Examine the columns
 colnames(data)
 ```
 
+```
+##  [1] "STATE__"    "BGN_DATE"   "BGN_TIME"   "TIME_ZONE"  "COUNTY"    
+##  [6] "COUNTYNAME" "STATE"      "EVTYPE"     "BGN_RANGE"  "BGN_AZI"   
+## [11] "BGN_LOCATI" "END_DATE"   "END_TIME"   "COUNTY_END" "COUNTYENDN"
+## [16] "END_RANGE"  "END_AZI"    "END_LOCATI" "LENGTH"     "WIDTH"     
+## [21] "F"          "MAG"        "FATALITIES" "INJURIES"   "PROPDMG"   
+## [26] "PROPDMGEXP" "CROPDMG"    "CROPDMGEXP" "WFO"        "STATEOFFIC"
+## [31] "ZONENAMES"  "LATITUDE"   "LONGITUDE"  "LATITUDE_E" "LONGITUDE_"
+## [36] "REMARKS"    "REFNUM"
+```
+
 ### 2.3 Transform the data
 
-```{r message=FALSE, warning=FALSE}
 
+```r
 # Keep only columns needed for the analysis
 data <- select(data, EVTYPE, FATALITIES, INJURIES, PROPDMG, PROPDMGEXP, CROPDMG, CROPDMGEXP)
 
 # check new data
 str(data)
+```
 
+```
+## 'data.frame':	902297 obs. of  7 variables:
+##  $ EVTYPE    : Factor w/ 985 levels "   HIGH SURF ADVISORY",..: 834 834 834 834 834 834 834 834 834 834 ...
+##  $ FATALITIES: num  0 0 0 0 0 0 0 0 1 0 ...
+##  $ INJURIES  : num  15 0 2 2 2 6 1 0 14 0 ...
+##  $ PROPDMG   : num  25 2.5 25 2.5 2.5 2.5 2.5 2.5 25 25 ...
+##  $ PROPDMGEXP: Factor w/ 19 levels "","-","?","+",..: 17 17 17 17 17 17 17 17 17 17 ...
+##  $ CROPDMG   : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ CROPDMGEXP: Factor w/ 9 levels "","?","0","2",..: 1 1 1 1 1 1 1 1 1 1 ...
+```
+
+```r
 # Create a dataset to store the total of fatalities and injuries per weather event
 totalHealthEffects <- data %>% select(EVTYPE, FATALITIES, INJURIES) %>% 
                            group_by(EVTYPE) %>%
@@ -114,12 +139,30 @@ In this section, we will present the results of our research. We will clearly se
 ### 3.1 Impact on Population Health
 
 ***Top 10 most harmful events for population health***
-```{r}
+
+```r
 totalHealthEffects
 ```
 
+```
+## # A tibble: 10 x 4
+##    EVTYPE            FATALITIES INJURIES TOTAL
+##    <fct>                  <dbl>    <dbl> <dbl>
+##  1 TORNADO                 5633    91346 96979
+##  2 EXCESSIVE HEAT          1903     6525  8428
+##  3 TSTM WIND                504     6957  7461
+##  4 FLOOD                    470     6789  7259
+##  5 LIGHTNING                816     5230  6046
+##  6 HEAT                     937     2100  3037
+##  7 FLASH FLOOD              978     1777  2755
+##  8 ICE STORM                 89     1975  2064
+##  9 THUNDERSTORM WIND        133     1488  1621
+## 10 WINTER STORM             206     1321  1527
+```
+
 ***Graphic presentation***
-```{r}
+
+```r
 barplot(t(as.matrix(totalHealthEffects[,4:2])),
               names.arg = totalHealthEffects$EVTYPE,
               las=3,
@@ -131,17 +174,37 @@ barplot(t(as.matrix(totalHealthEffects[,4:2])),
               col = c("Red", "Green", "Blue"))
 ```
 
+![](StormReport_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+
 Our conclusion on this is that Tornado has the most harmful impact on population health.
 
 ### 3.2 Impact on Economy
 
 ***Top 10 most harmful events for population health***
-```{r}
+
+```r
 totalEconomyEffects
 ```
 
+```
+## # A tibble: 10 x 4
+##    EVTYPE                CROPDMG       PROPDMG         TOTAL
+##    <fct>                   <dbl>         <dbl>         <dbl>
+##  1 FLOOD              5661968450 144657709807  150319678257 
+##  2 HURRICANE/TYPHOON  2607872800  69305840000   71913712800 
+##  3 TORNADO             414953270  56935880616.  57350833886.
+##  4 STORM SURGE              5000  43323536000   43323541000 
+##  5 HAIL               3025537473  15730367513.  18755904986.
+##  6 FLASH FLOOD        1421317100  16822673978.  18243991078.
+##  7 DROUGHT           13972566000   1046106000   15018672000 
+##  8 HURRICANE          2741910000  11868319010   14610229010 
+##  9 RIVER FLOOD        5029459000   5118945500   10148404500 
+## 10 ICE STORM          5022113500   3944927860    8967041360
+```
+
 ***Graphic presentation***
-```{r}
+
+```r
 barplot(t(as.matrix(totalEconomyEffects[,4:2])),
                names.arg = totalEconomyEffects$EVTYPE,
                las=3,
@@ -152,6 +215,8 @@ barplot(t(as.matrix(totalEconomyEffects[,4:2])),
                legend = c("Total", "Property", "Crop"),
                col = c("Red", "Green", "Blue"))
 ```
+
+![](StormReport_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 Our conclusion on this is that Flood has the most harmful impact on economy.
 
